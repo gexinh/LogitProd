@@ -162,6 +162,79 @@ class POESurvival(nn.Module):
         return fused_hazards, weights
 
 
+class POESurvivalPerTimeBin(nn.Module):
+    """
+    POE fusion with one independent gate network per time bin (including tail bin).
+
+    Inputs:
+      x      : [B, D] gating feature vector extracted from experts' hazard logits
+      logits : [B, M, T] experts' hazard logits
+
+    Outputs:
+      fused_hazards : [B, T] fused hazards in (0, 1)
+      weights_mean  : [B, M] mean expert weights across bins (for penalty compatibility)
+    """
+    def __init__(
+        self,
+        in_dim: int,
+        n_models: int,
+        n_bins: int,
+        hidden: int = 0,
+        gate_temp: float = 1.0,
+        init_uniform: bool = True,
+        bias: bool = True,
+    ):
+        super().__init__()
+        self.n_models = n_models
+        self.n_bins = n_bins
+        self.gate_temp = gate_temp
+
+        if hidden and hidden > 0:
+            self.gates = nn.ModuleList([
+                nn.Sequential(
+                    nn.Linear(in_dim, hidden, bias=True),
+                    nn.ReLU(),
+                    nn.Dropout(0.1),
+                    nn.Linear(hidden, n_models, bias=bias),
+                ) for _ in range(n_bins)
+            ])
+        else:
+            self.gates = nn.ModuleList([
+                nn.Linear(in_dim, n_models, bias=bias) for _ in range(n_bins)
+            ])
+
+        if init_uniform:
+            for g in self.gates:
+                if isinstance(g, nn.Linear):
+                    nn.init.zeros_(g.weight)
+                    if bias:
+                        nn.init.zeros_(g.bias)
+                else:
+                    nn.init.zeros_(g[-1].weight)
+                    if bias:
+                        nn.init.zeros_(g[-1].bias)
+
+    def forward(self, x: torch.Tensor, logits: torch.Tensor):
+        # one gate per bin -> weights: [B, T+1, M]
+        w_list = []
+        for k in range(self.n_bins):
+            raw_k = self.gates[k](x) / max(self.gate_temp, 1e-8)  # [B, M]
+            w_k = F.softmax(raw_k, dim=-1)                        # [B, M]
+            w_list.append(w_k)
+        weights = torch.stack(w_list, dim=1)                      # [B, T+1, M]
+
+        # POE on full event distribution in log-domain, per bin
+        p_full = logits_to_full_event_dist(logits)                # [B, M, T+1]
+        logp = (p_full + 1e-12).log()                             # [B, M, T+1]
+        fused_logp = torch.einsum("btm,bmt->bt", weights, logp)   # [B, T+1]
+        fused_p_full = F.softmax(fused_logp, dim=-1)              # [B, T+1]
+        fused_hazards = full_event_dist_to_hazards(fused_p_full)  # [B, T]
+
+        # keep penalty interface expecting [B, M]
+        weights_mean = weights.mean(dim=1)                        # [B, M]
+        return fused_hazards, weights_mean
+
+
 # -------------------------------
 # Dataset (ONLY logits + labels)
 # -------------------------------
@@ -782,7 +855,7 @@ def main():
         help="List of model folder names under <root>."
     )
 
-    parser.add_argument("--method", type=str, default="poe_survival", help="Method name saved in outputs.")
+    parser.add_argument("--method", type=str, default="poe_survival_per_timebin", help="Method name saved in outputs.")
     parser.add_argument("--batch_size", type=int, default=16)
     parser.add_argument("--num_epochs", type=int, default=600)
     parser.add_argument("--n_splits", type=int, default=5)
@@ -843,9 +916,10 @@ def main():
             train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, drop_last=False)
             val_loader = DataLoader(val_ds, batch_size=args.batch_size, shuffle=False, drop_last=False)
 
-            model = POESurvival(
+            model = POESurvivalPerTimeBin(
                 n_models=n_models,
                 in_dim=n_models * 3 + 2,
+                n_bins=n_bins + 1,  # event bins + tail
                 hidden=0,
                 gate_temp=DEFAULT_GATE_TEMP,
                 init_uniform=True,
