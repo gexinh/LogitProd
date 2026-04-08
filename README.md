@@ -2,6 +2,8 @@
 
 This document describes the workflow for training and inference using the LogitProd framework for both whole slide image (WSI)-level MIL tasks and patch-level classification, including ABMIL-based model training/inference and downstream logit fusion.
 
+![Fig1](/Users/lianqi/Documents/PathLogitFed/Fig1_m.png)
+
 ## Overview
 
 The pipeline consists of three main steps:
@@ -63,7 +65,7 @@ After Step 1, ensure you have:
 ## Step 2: Model Training and Inference
 
 In Step 2, you run **task-specific training and inference scripts** for four types of tasks.
-All scripts are located under `tutorials/code/scripts`:
+All scripts are located under `scripts`:
 
 - `WSI_classification/`
 - `Gene_mutation/`
@@ -75,11 +77,11 @@ GitHub-release style CLI arguments (paths parameterized, no hardcoded user paths
 
 ### 2.1 WSI-level classification (ABMIL)
 
-- **Scripts location**: `code/scripts/WSI_classification/`
+- **Scripts location**: `scripts/WSI_classification/`
 - **Typical usage**:
 
 ```bash
-cd tutorials/code/scripts/WSI_classification
+cd scripts/WSI_classification
 
 # Training
 python train_abmil_WSI_classification.py --help
@@ -90,11 +92,11 @@ python infer_abmil_WSI_classification.py --help
 
 ### 2.2 Gene mutation prediction
 
-- **Scripts location**: `code/scripts/Gene_mutation/`
+- **Scripts location**: `scripts/Gene_mutation/`
 - **Typical usage**:
 
 ```bash
-cd tutorials/code/scripts/Gene_mutation
+cd scripts/Gene_mutation
 
 # Training
 python train_abmil_Gene_mutation.py --help
@@ -105,11 +107,11 @@ python infer_abmil_Gene_mutation.py --help
 
 ### 2.3 Survival analysis
 
-- **Scripts location**: `code/scripts/Survival_analysis/`
+- **Scripts location**: `scripts/Survival_analysis/`
 - **Typical usage**:
 
 ```bash
-cd tutorials/code/scripts/Survival_analysis
+cd scripts/Survival_analysis
 
 # Training
 python train_abmil_Survival_analysis.py --help
@@ -120,11 +122,11 @@ python infer_abmil_Survival_analysis.py --help
 
 ### 2.4 Patch-level classification
 
-- **Scripts location**: `code/scripts/Patch_classification/`
+- **Scripts location**: `scripts/Patch_classification/`
 - **Typical usage**:
 
 ```bash
-cd tutorials/code/scripts/Patch_classification
+cd scripts/Patch_classification
 
 # Training + inference are implemented in a single script
 python train_infer_Patch_classification.py --help
@@ -139,15 +141,15 @@ Step 2 via centralized logit fusion across tasks/models.
 
 All LogitProd-related scripts live alongside the task scripts in:
 
-- `code/scripts/WSI_classification/LogitProd_WSI_classification.py`
-- `code/scripts/Gene_mutation/LogitProd_Gene_mutation.py`
-- `code/scripts/Survival_analysis/LogitProd_Survival_analysis.py`
-- `code/scripts/Patch_classification/LogitProd_Patch_classification.py`
+- `scripts/WSI_classification/LogitProd_WSI_classification.py`
+- `scripts/Gene_mutation/LogitProd_Gene_mutation.py`
+- `scripts/Survival_analysis/LogitProd_Survival_analysis.py`
+- `scripts/Patch_classification/LogitProd_Patch_classification.py`
 
 ### Typical usage
 
 ```bash
-cd tutorials/code/scripts/WSI_classification
+cd scripts/WSI_classification
 
 python LogitProd_WSI_classification.py --help
 ```
