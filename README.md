@@ -2,7 +2,7 @@
 
 This document describes the workflow for training and inference using the LogitProd framework for both whole slide image (WSI)-level MIL tasks and patch-level classification, including ABMIL-based model training/inference and downstream logit fusion.
 
-![Fig1](/Users/lianqi/Documents/PathLogitFed/Fig1_m.png)
+![Fig1](Fig1_m.png)
 
 ## Overview
 
