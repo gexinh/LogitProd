@@ -30,7 +30,7 @@ Output directory structure:
     - val_outputs.npy, val_predictions.npy, val_labels.npy, val_probabilities.npy
 
 Usage example:
-  python logitsfed_Patch_classification.py --root /path/to/patch_results \
+  python LogitProd_Patch_classification.py --root /path/to/patch_results \
       --models conch_v15 uni_v2 phikon_v2
 """
 

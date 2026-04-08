@@ -23,7 +23,7 @@ Expected directory structure:
   <root>/<model_name>/summary.json (optional, for reporting individual model metrics)
 
 Usage example:
-  python logitsfed_genemutation.py --dataset brca_lusc --target_gene ARID1A
+  python LogitProd_genemutation.py --dataset brca_lusc --target_gene ARID1A
 """
 
 import os
