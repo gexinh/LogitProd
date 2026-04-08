@@ -1,13 +1,13 @@
-# PathLogitFed Training and Inference Pipeline
+# LogitProd Training and Inference Pipeline
 
-This document describes the workflow for training and inference using the PathLogitFed framework for both whole slide image (WSI)–level MIL tasks and patch-level classification, including federated training of ABMIL-based models and their inference.
+This document describes the workflow for training and inference using the LogitProd framework for both whole slide image (WSI)-level MIL tasks and patch-level classification, including ABMIL-based model training/inference and downstream logit fusion.
 
 ## Overview
 
 The pipeline consists of three main steps:
 - **Step 1**: Feature extraction using Trident
 - **Step 2**: Model training and inference (WSI-level MIL, survival analysis, gene mutation, and patch-level classification)
-- **Step 3**: PathLogitFed federated aggregation and analysis
+- **Step 3**: LogitProd logit-fusion aggregation and analysis
 
 ## Prerequisites
 
@@ -17,10 +17,10 @@ The pipeline consists of three main steps:
 
 ```bash
 # Create a new conda environment
-conda create -n PathLogitFed python=3.10 -y
+conda create -n LogitProd python=3.10 -y
 
 # Activate the environment
-conda activate PathLogitFed
+conda activate LogitProd
 
 # Install PyTorch (adjust CUDA version as needed)
 conda install pytorch torchvision pytorch-cuda=12.1 -c pytorch -c nvidia
@@ -34,7 +34,7 @@ pip install -r requirements.txt
 
 ## Step 1: Extract Patch-level Features using Trident
 
-Before training/inference (Step 2) and federated aggregation (Step 3), you need to extract patch-level features from whole slide images (WSI) using [Trident](https://github.com/mahmoodlab/Trident).
+Before training/inference (Step 2) and logit-fusion aggregation (Step 3), you need to extract patch-level features from whole slide images (WSI) using [Trident](https://github.com/mahmoodlab/Trident).
 
 Please refer to the [Trident GitHub repository](https://github.com/mahmoodlab/Trident) for installation and feature extraction instructions.
 
@@ -132,37 +132,34 @@ python train_infer_Patch_classification.py --help
 
 ---
 
-## Step 3: PathLogitFed Aggregation
+## Step 3: LogitProd Aggregation
 
-In Step 3, you run the **PathLogitFed** scripts to aggregate logits/features from
-Step 2 across multiple cohorts / tasks in a federated manner.
+In Step 3, you run the **LogitProd** scripts to aggregate logits/features from
+Step 2 via centralized logit fusion across tasks/models.
 
-All PathLogitFed-related scripts live alongside the task scripts in:
+All LogitProd-related scripts live alongside the task scripts in:
 
-- `code/scripts/WSI_classification/logitsfed_WSI_classification.py`
-- `code/scripts/Gene_mutation/logitsfed_Gene_mutation.py`
-- `code/scripts/Survival_analysis/logitsfed_Survival_analysis.py`
-- `code/scripts/Patch_classification/logitsfed_Patch_classification.py`
+- `code/scripts/WSI_classification/LogitProd_WSI_classification.py`
+- `code/scripts/Gene_mutation/LogitProd_Gene_mutation.py`
+- `code/scripts/Survival_analysis/LogitProd_Survival_analysis.py`
+- `code/scripts/Patch_classification/LogitProd_Patch_classification.py`
 
 ### Typical usage
 
 ```bash
 cd tutorials/code/scripts/WSI_classification
 
-python logitsfed_WSI_classification.py --help
+python LogitProd_WSI_classification.py --help
 ```
 
-You can choose the appropriate PathLogitFed script for:
+You can choose the appropriate LogitProd script for:
 
-- **WSI-level classification**: cross-cohort aggregation of slide-level logits
-- **Gene mutation prediction**: aggregation across hospitals / cohorts for mutation tasks
-- **Survival analysis**: aggregation of survival-related logits/outputs across cohorts (task-specific)
-- **Patch-level classification**: aggregation of patch-level logits for federated analysis
+- **WSI-level classification**: multi-model fusion of slide-level logits
+- **Gene mutation prediction**: fusion of mutation logits from multiple expert models
+- **Survival analysis**: fusion of survival-related logits/outputs from multiple expert models
+- **Patch-level classification**: fusion of patch-level logits
 
 Each script exposes task-specific CLI arguments (paths to logits / features from Step 2,
-output directory for federated results, etc.). Use `--help` to inspect the exact options.
+output directory for fusion results, etc.). Use `--help` to inspect the exact options.
 
 ---
-
-
-
