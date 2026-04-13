@@ -165,3 +165,19 @@ Each script exposes task-specific CLI arguments (paths to logits / features from
 output directory for fusion results, etc.). Use `--help` to inspect the exact options.
 
 ---
+
+## Citation
+
+If you use this project, please cite:
+
+```bibtex
+@misc{huang2026plugandplaylogitfusionheterogeneous,
+      title={Plug-and-Play Logit Fusion for Heterogeneous Pathology Foundation Models}, 
+      author={Gexin Huang and Anqi Li and Yusheng Tan and Beidi Zhao and Gang Wang and Zu-Hua Gao and Xiaoxiao Li},
+      year={2026},
+      eprint={2604.07779},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2604.07779}, 
+}
+```
