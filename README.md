@@ -4,6 +4,8 @@ This document describes the workflow for training and inference using the LogitP
 
 ![Fig1](Fig1_m.png)
 
+![Fig2](Fig2_m.png)
+
 ## Overview
 
 The pipeline consists of three main steps:
